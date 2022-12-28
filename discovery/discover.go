@@ -4,6 +4,7 @@ import (
 	"go.etcd.io/etcd/client/v3"
 	"go.etcd.io/etcd/client/v3/naming/resolver"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 // Discover 服务发现
@@ -20,6 +21,10 @@ func Discover(client *clientv3.Client, service string, options ...grpc.DialOptio
 	if len(options) > 0 {
 		opt = append(opt, options...)
 	}
-	//return grpc.Dial("etcd:///"+service, grpc.WithResolvers(rsv), grpc.WithTransportCredentials(insecure.NewCredentials()))
 	return grpc.DialContext(client.Ctx(), "etcd:///"+service, opt...)
+}
+
+func DiscoverInsecure(client *clientv3.Client, service string, options ...grpc.DialOption) (*grpc.ClientConn, error) {
+	opt := append(options, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	return Discover(client, service, opt...)
 }
